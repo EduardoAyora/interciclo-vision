@@ -103,8 +103,6 @@ void mouse_call(int event, int x, int y, int, void *)
   {
     line(frame, primerPunto, puntoAnterior, Scalar(0, 0, 255), thickness, LINE_AA);
     line(areaSeleccionada, primerPunto, puntoAnterior, 255, thickness, LINE_AA);
-    namedWindow("Recortada");
-    imshow("Recortada", obtenerImagenRecortada());
     sonClicsPermitidos = false;
   }
   imshow("Original", frame);
@@ -154,6 +152,11 @@ int main(int argc, char *argv[])
     namedWindow("Area seleccionada");
     imshow("Original", frame);
     imshow("Area seleccionada", areaSeleccionada);
+    if (!sonClicsPermitidos)
+    {
+      namedWindow("Recortada");
+      imshow("Recortada", obtenerImagenRecortada());
+    }
 
     setMouseCallback("Original", mouse_call);
 
