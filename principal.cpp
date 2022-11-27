@@ -86,11 +86,35 @@ Mat obtenerImagenRecortada()
   Mat frameRecortado = convertirEnImagenNegra(img, true);
   for (int i = 0; i < areaSeleccionada.rows; i++)
   {
+    // Verificar si existen dos lineas
+    bool pasoPrimeraLinea = false;
+    bool pasoSegundaLinea = false;
     bool esDentroDeFigura = false;
     for (int j = 0; j < areaSeleccionada.cols; j++)
     {
       if ((int)areaSeleccionada.at<uchar>(i, j) > 0)
-        esDentroDeFigura = !esDentroDeFigura;
+        pasoPrimeraLinea = true;
+      if ((int)areaSeleccionada.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
+        esDentroDeFigura = true;
+      if ((int)areaSeleccionada.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
+        pasoSegundaLinea = true;
+    }
+
+    // Recuperar solo pixeles dentro del área
+    pasoPrimeraLinea = false;
+    esDentroDeFigura = false;
+    if (!pasoSegundaLinea) pasoSegundaLinea = true;
+    else pasoSegundaLinea = false;
+    for (int j = 0; j < areaSeleccionada.cols; j++)
+    {
+      if ((int)areaSeleccionada.at<uchar>(i, j) > 0)
+        pasoPrimeraLinea = true;
+      if ((int)areaSeleccionada.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
+        esDentroDeFigura = true;
+      if ((int)areaSeleccionada.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
+        pasoSegundaLinea = true;
+      if (pasoSegundaLinea)
+        esDentroDeFigura = false;
       if (esDentroDeFigura)
       {
         Vec3b color = img.at<Vec3b>(i, j);
