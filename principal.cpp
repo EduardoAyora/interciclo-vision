@@ -1,10 +1,13 @@
 #include "header.h"
+#include <opencv2/tracking.hpp>
+// #include <opencv2/tracking/tracking.hpp>
 
 Mat frame;
 Mat areaSeleccionada;
 Mat frameRecortado;
 Point primerPunto;
 Point puntoAnterior;
+Ptr<Tracker> tracker;
 
 bool sonClicsPermitidos = true;
 int thickness = 1;
@@ -88,7 +91,6 @@ void mouse_call(int event, int x, int y, int, void *)
   {
     if (puntoAnterior.x != 0 && puntoAnterior.y != 0)
     {
-      line(frame, puntoActual, puntoAnterior, Scalar(0, 0, 255), thickness, LINE_AA);
       line(areaSeleccionada, puntoActual, puntoAnterior, 255, thickness, LINE_AA);
     }
     else
@@ -101,7 +103,6 @@ void mouse_call(int event, int x, int y, int, void *)
 
   if (event == EVENT_RBUTTONDOWN)
   {
-    line(frame, primerPunto, puntoAnterior, Scalar(0, 0, 255), thickness, LINE_AA);
     line(areaSeleccionada, primerPunto, puntoAnterior, 255, thickness, LINE_AA);
     sonClicsPermitidos = false;
   }
@@ -130,12 +131,23 @@ int main(int argc, char *argv[])
   if (!video.isOpened())
     return 0;
 
+  // Para seleccionar zona de interes
+  video >> frame;
+  resize(frame, frame, Size(), 0.70, 0.70);
+  cv::Rect roi(500, 100, 150, 200);
+  tracker = TrackerKCF::create();
+  tracker->init(frame, roi);
+
   bool esVentanaAreaSeleccionadaIniciada = false;
   while (true)
   {
     video >> frame;
     resize(frame, frame, Size(), 0.70, 0.70);
     frameRecortado = frame.clone();
+
+    // Tracker
+    tracker->update(frame, roi);
+    rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
 
     if (!esVentanaAreaSeleccionadaIniciada)
     {
