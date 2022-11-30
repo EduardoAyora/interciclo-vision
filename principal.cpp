@@ -162,10 +162,6 @@ int main(int argc, char *argv[])
   if (!video.isOpened())
     return 0;
 
-  // Para seleccionar zona de interes
-  // video >> frame;
-  // resize(frame, frame, Size(), 0.70, 0.70);
-
   bool esVentanaAreaSeleccionadaIniciada = false;
   while (true)
   {
