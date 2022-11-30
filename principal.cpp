@@ -94,6 +94,8 @@ Mat obtenerImagenRecortada()
       }
     }
   }
+  Mat structuringElement = getStructuringElement(MORPH_CROSS, Size(3, 3));
+  morphologyEx(frameRecortado, frameRecortado, MORPH_ERODE, structuringElement, Point(-1,-1), 1);
 
   return frameRecortado;
 }
