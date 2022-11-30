@@ -7,6 +7,13 @@ Mat areaSeleccionada;
 Mat frameRecortado;
 Point primerPunto;
 Point puntoAnterior;
+int pixelMasALaDerecha;
+int pixelMasALaIzquierda;
+int pixelMasArriba;
+int pixelMasAbajo;
+int anchoDeSeleccion;
+int altoDeSeleccion;
+Rect roi;
 Ptr<Tracker> tracker;
 
 bool sonClicsPermitidos = true;
@@ -87,15 +94,30 @@ void mouse_call(int event, int x, int y, int, void *)
   if (!sonClicsPermitidos)
     return;
   Point puntoActual = Point(x, y);
+
   if (event == EVENT_LBUTTONDOWN)
   {
     if (puntoAnterior.x != 0 && puntoAnterior.y != 0)
     {
       line(areaSeleccionada, puntoActual, puntoAnterior, 255, thickness, LINE_AA);
+
+      if (pixelMasAbajo < puntoActual.y)
+        pixelMasAbajo = puntoActual.y;
+      if (pixelMasArriba > puntoActual.y)
+        pixelMasArriba = puntoActual.y;
+      if (pixelMasALaDerecha < puntoActual.x)
+        pixelMasALaDerecha = puntoActual.x;
+      if (pixelMasALaIzquierda > puntoActual.x)
+        pixelMasALaIzquierda = puntoActual.x;
     }
     else
     {
       primerPunto = puntoActual;
+
+      pixelMasAbajo = puntoActual.y;
+      pixelMasArriba = puntoActual.y;
+      pixelMasALaDerecha = puntoActual.x;
+      pixelMasALaIzquierda = puntoActual.x;
     }
     circle(frame, puntoActual, 0, Scalar(0, 0, 255), 1, 8, 0);
     puntoAnterior = puntoActual;
@@ -104,8 +126,17 @@ void mouse_call(int event, int x, int y, int, void *)
   if (event == EVENT_RBUTTONDOWN)
   {
     line(areaSeleccionada, primerPunto, puntoAnterior, 255, thickness, LINE_AA);
+
+    // Iniciar Tracker
+    anchoDeSeleccion = pixelMasALaDerecha - pixelMasALaIzquierda;
+    altoDeSeleccion = pixelMasAbajo - pixelMasArriba;
+    roi = cv::Rect(pixelMasALaIzquierda, pixelMasArriba, anchoDeSeleccion, altoDeSeleccion);
+    tracker = TrackerKCF::create();
+    tracker->init(frame, roi);
+
     sonClicsPermitidos = false;
   }
+
   imshow("Original", frame);
   imshow("Area seleccionada", areaSeleccionada);
 }
@@ -132,11 +163,8 @@ int main(int argc, char *argv[])
     return 0;
 
   // Para seleccionar zona de interes
-  video >> frame;
-  resize(frame, frame, Size(), 0.70, 0.70);
-  cv::Rect roi(500, 100, 150, 200);
-  tracker = TrackerKCF::create();
-  tracker->init(frame, roi);
+  // video >> frame;
+  // resize(frame, frame, Size(), 0.70, 0.70);
 
   bool esVentanaAreaSeleccionadaIniciada = false;
   while (true)
@@ -146,8 +174,11 @@ int main(int argc, char *argv[])
     frameRecortado = frame.clone();
 
     // Tracker
-    tracker->update(frame, roi);
-    rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
+    if (tracker != NULL)
+    {
+      tracker->update(frame, roi);
+      rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
+    }
 
     if (!esVentanaAreaSeleccionadaIniciada)
     {
