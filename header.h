@@ -12,12 +12,33 @@
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/video/video.hpp>
 #include <opencv2/videoio/videoio.hpp>
+#include <opencv2/tracking.hpp>
 
 using namespace std;
 using namespace std::chrono;
 using namespace cv;
 
-#ifndef MY_HEADER
-#define MY_HEADER
-Mat ponerRuido(Mat imagen, int porcentajeRuido, bool esRuidoSal);
+#ifndef HEADER
+#define HEADER
+
+extern Mat frame;
+extern Mat areaSeleccionada;
+extern Mat frameRecortado;
+extern Point primerPunto;
+extern Point puntoAnterior;
+extern int pixelMasALaDerecha;
+extern int pixelMasALaIzquierda;
+extern int pixelMasArriba;
+extern int pixelMasAbajo;
+extern int anchoDeSeleccion;
+extern int altoDeSeleccion;
+extern Rect roi;
+extern Ptr<Tracker> tracker;
+extern bool sonClicsPermitidos;
+extern int thickness;
+
+Mat convertirEnImagenNegra(Mat imagen, bool esImagenConColores);
+Mat obtenerImagenRecortada();
+void mouse_call(int event, int x, int y, int, void *);
+
 #endif

@@ -5,6 +5,8 @@
     "iosfwd": "cpp",
     "random": "cpp",
     "ostream": "cpp",
-    "__locale": "cpp"
+    "__locale": "cpp",
+    "vector": "cpp",
+    "cstring": "cpp"
   }
 }
