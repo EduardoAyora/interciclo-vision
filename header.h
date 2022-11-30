@@ -24,6 +24,7 @@ using namespace cv;
 extern Mat frame;
 extern Mat areaSeleccionada;
 extern Mat frameRecortado;
+extern Mat frameTracker;
 extern Point primerPunto;
 extern Point puntoAnterior;
 extern int pixelMasALaDerecha;

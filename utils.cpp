@@ -125,7 +125,7 @@ void mouse_call(int event, int x, int y, int, void *)
     altoDeSeleccion = pixelMasAbajo - pixelMasArriba;
     roi = cv::Rect(pixelMasALaIzquierda, pixelMasArriba, anchoDeSeleccion, altoDeSeleccion);
     tracker = TrackerKCF::create();
-    tracker->init(frame, roi);
+    tracker->init(frameTracker, roi);
 
     sonClicsPermitidos = false;
   }

@@ -3,6 +3,7 @@
 Mat frame;
 Mat areaSeleccionada;
 Mat frameRecortado;
+Mat frameTracker;
 Point primerPunto;
 Point puntoAnterior;
 int pixelMasALaDerecha;
@@ -44,12 +45,13 @@ int main(int argc, char *argv[])
     resize(frame, frame, Size(), 0.70, 0.70);
     flip(frame, frame, 1);
     frameRecortado = frame.clone();
+    frameTracker = frame.clone();
 
     // Tracker
     if (tracker != NULL)
     {
-      tracker->update(frame, roi);
-      rectangle(frame, roi, Scalar(255, 0, 0), 2, 1);
+      tracker->update(frameTracker, roi);
+      rectangle(frameTracker, roi, Scalar(255, 0, 0), 2, 1);
     }
 
     if (!esVentanaAreaSeleccionadaIniciada)
@@ -65,8 +67,10 @@ int main(int argc, char *argv[])
 
     namedWindow("Original");
     namedWindow("Area seleccionada");
+    namedWindow("Tracker");
     imshow("Original", frame);
     imshow("Area seleccionada", areaSeleccionada);
+    imshow("Tracker", frameTracker);
     if (!sonClicsPermitidos)
     {
       namedWindow("Recortada");
