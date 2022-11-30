@@ -1,6 +1,5 @@
 #include "header.h"
 #include <opencv2/tracking.hpp>
-// #include <opencv2/tracking/tracking.hpp>
 
 Mat frame;
 Mat areaSeleccionada;
@@ -46,19 +45,28 @@ Mat convertirEnImagenNegra(Mat imagen, bool esImagenConColores)
 Mat obtenerImagenRecortada()
 {
   Mat frameRecortado = convertirEnImagenNegra(frame, true);
-  for (int i = 0; i < areaSeleccionada.rows; i++)
+
+  // Seguimiento con tracker
+  Mat areaSeleccionadaTmp;
+  float traslacionDeRoiX = roi.x - pixelMasALaIzquierda;
+  float traslacionDeRoiY = roi.y - pixelMasArriba;
+  float warp_values[] = {1.0, 0.0, traslacionDeRoiX, 0.0, 1.0, traslacionDeRoiY};
+  Mat translation_matrix = Mat(2, 3, CV_32F, warp_values);
+  warpAffine(areaSeleccionada, areaSeleccionadaTmp, translation_matrix, areaSeleccionada.size());
+
+  for (int i = 0; i < areaSeleccionadaTmp.rows; i++)
   {
     // Verificar si existen dos lineas
     bool pasoPrimeraLinea = false;
     bool pasoSegundaLinea = false;
     bool esDentroDeFigura = false;
-    for (int j = 0; j < areaSeleccionada.cols; j++)
+    for (int j = 0; j < areaSeleccionadaTmp.cols; j++)
     {
-      if ((int)areaSeleccionada.at<uchar>(i, j) > 0)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0)
         pasoPrimeraLinea = true;
-      if ((int)areaSeleccionada.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
         esDentroDeFigura = true;
-      if ((int)areaSeleccionada.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
         pasoSegundaLinea = true;
     }
 
@@ -69,13 +77,13 @@ Mat obtenerImagenRecortada()
       pasoSegundaLinea = true;
     else
       pasoSegundaLinea = false;
-    for (int j = 0; j < areaSeleccionada.cols; j++)
+    for (int j = 0; j < areaSeleccionadaTmp.cols; j++)
     {
-      if ((int)areaSeleccionada.at<uchar>(i, j) > 0)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0)
         pasoPrimeraLinea = true;
-      if ((int)areaSeleccionada.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
         esDentroDeFigura = true;
-      if ((int)areaSeleccionada.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
+      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
         pasoSegundaLinea = true;
       if (pasoSegundaLinea)
         esDentroDeFigura = false;
@@ -86,6 +94,7 @@ Mat obtenerImagenRecortada()
       }
     }
   }
+
   return frameRecortado;
 }
 
