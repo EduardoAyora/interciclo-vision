@@ -4,6 +4,7 @@
     "iostream": "cpp",
     "iosfwd": "cpp",
     "random": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "__locale": "cpp"
   }
 }
