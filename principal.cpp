@@ -24,8 +24,6 @@ Ptr<Tracker> tracker;
 bool sonClicsPermitidos = true;
 int thickness = 1;
 int valor = 0;
-string filename = "Videoresultante.avi";
-double fps = 30.0;
 
 void eventoTrack(int v, void *data)
 {
@@ -44,14 +42,19 @@ int main(int argc, char *argv[])
   video >> captura;
 
   VideoWriter writer;
+
   bool esVentanaAreaSeleccionadaIniciada = false;
   bool isColor = (captura.type() == CV_8UC3);
   int codec = writer.fourcc('M', 'J', 'P', 'G');
-  writer.open(filename, codec, fps, captura.size(), isColor);
+
+  int frame_width = video.get(cv::CAP_PROP_FRAME_WIDTH);
+  int frame_height = video.get(cv::CAP_PROP_FRAME_HEIGHT);
+
+  VideoWriter videoWriter("outcpp.avi", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 5, Size(frame_width, frame_height));
+
   while (true)
   {
     video >> frame;
-    resize(frame, frame, Size(), 0.70, 0.70);
     flip(frame, frame, 1);
     frameRecortado = frame.clone();
     frameTracker = frame.clone();
@@ -116,29 +119,28 @@ int main(int argc, char *argv[])
       recorte.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(0, frame.cols)));
 
       // Calculo del area y tmb operacion de bitwise para combinar imagenes
-      for (int i = 0; i < lienzo.rows; i++)
+      if (calculoArea)
       {
-        for (int j = 0; j < lienzo.cols; j++)
+        for (int i = 0; i < lienzo.rows; i++)
         {
-          Vec3b pixel = lienzo.at<Vec3b>(i, j);
-          if (pixel[0] > 0 && pixel[1] > 0 && pixel[2] > 0)
+          for (int j = 0; j < lienzo.cols; j++)
           {
-            if (calculoArea == true)
+            Vec3b pixel = lienzo.at<Vec3b>(i, j);
+            if (pixel[0] > 0 && pixel[1] > 0 && pixel[2] > 0)
             {
               area += 1;
             }
           }
         }
+        calculoArea = false;
       }
-      calculoArea = false;
       resize(video1, video1, recorte.size());
-      // imshow("ed", recorteBlanco);
       bitwise_not(lienzo, lienzo);
       bitwise_and(video1, lienzo, final);
       add(final, recorte, final);
       final.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols * 2, frame.cols * 3)));
 
-      writer.write(final);
+      videoWriter.write(final);
     }
 
     setMouseCallback("Video", mouse_call);
@@ -146,6 +148,7 @@ int main(int argc, char *argv[])
     if (waitKey(23) == 27)
       break;
   }
+  videoWriter.release();
   video.release();
   destroyAllWindows();
   return 0;
