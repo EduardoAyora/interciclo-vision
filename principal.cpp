@@ -26,23 +26,10 @@ int thickness = 1;
 int valor = 0;
 string filename = "Videoresultante.avi";
 double fps = 30.0;
+
 void eventoTrack(int v, void *data)
 {
 }
-// void showFrames()
-// {
-//   Mat ventana(Size(frame.cols * 3, frame.rows), frame.type());
-
-//   putText(frame, "Original", Point(50, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
-
-//   Mat areaSeleccionadaColor;
-//   cvtColor(areaSeleccionada, areaSeleccionadaColor, COLOR_GRAY2BGR);
-
-//   frame.copyTo(ventana(Range(0, frame.rows), Range(0, frame.cols)));
-//   areaSeleccionadaColor.copyTo(ventana(Range(0, frame.rows), Range(frame.cols, frame.cols * 2)));
-//   frameRecortado.copyTo(ventana(Range(0, frame.rows), Range(frame.cols * 2, frame.cols * 3)));
-//   imshow("Video", ventana);
-// }
 
 int main(int argc, char *argv[])
 {
@@ -83,13 +70,13 @@ int main(int argc, char *argv[])
       areaSeleccionada = convertirEnImagenNegra(areaSeleccionada, false);
       esVentanaAreaSeleccionadaIniciada = true;
     }
+
     Mat areaSeleccionadaColor;
     cvtColor(areaSeleccionada, areaSeleccionadaColor, COLOR_GRAY2BGR);
     bitwise_or(areaSeleccionadaColor, frame, frame);
 
     Mat ventana(Size(frame.cols * 3, frame.rows * 2), frame.type());
     namedWindow("Video");
-    ;
     putText(frame, "FPS:" + to_string(int(fps2)), cv::Point(20, 50), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 255, 0), 2, false);
     putText(frame, "AREA:" + to_string(int(area)), cv::Point(20, 80), cv::FONT_HERSHEY_DUPLEX, 1, cv::Scalar(0, 0, 255), 2, false);
     frame.copyTo(ventana(Range(0, frame.rows), Range(0, frame.cols)));
@@ -124,10 +111,9 @@ int main(int argc, char *argv[])
     {
 
       recorte = obtenerImagenRecortada();
-      lienzo = recorte.clone();
+
+      lienzo = obtenerImagenRecortadaRellena();
       recorte.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(0, frame.cols)));
-      // namedWindow("Recortada");
-      // imshow("Recortada", recorte);
 
       // Calculo del area y tmb operacion de bitwise para combinar imagenes
       for (int i = 0; i < lienzo.rows; i++)
@@ -135,12 +121,8 @@ int main(int argc, char *argv[])
         for (int j = 0; j < lienzo.cols; j++)
         {
           Vec3b pixel = lienzo.at<Vec3b>(i, j);
-          if (pixel[0] > 0 || pixel[1] > 0 || pixel[2] > 0)
+          if (pixel[0] > 0 && pixel[1] > 0 && pixel[2] > 0)
           {
-            pixel[0] = 255;
-            pixel[1] = 255;
-            pixel[2] = 255;
-            lienzo.at<Vec3b>(i, j) = pixel;
             if (calculoArea == true)
             {
               area += 1;
@@ -150,27 +132,19 @@ int main(int argc, char *argv[])
       }
       calculoArea = false;
       resize(video1, video1, recorte.size());
+      // imshow("ed", recorteBlanco);
       bitwise_not(lienzo, lienzo);
       bitwise_and(video1, lienzo, final);
       add(final, recorte, final);
       final.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols * 2, frame.cols * 3)));
-      // namedWindow("Final");
 
       writer.write(final);
-      // imshow("Final", final);
     }
 
     setMouseCallback("Video", mouse_call);
 
     if (waitKey(23) == 27)
       break;
-    // final.release();
-    // video1.release();
-    // lienzo.release();
-    // recorte.release();
-    // frame.release();
-    // frameRecortado.release();
-    // areaSeleccionadaColor.release();
   }
   video.release();
   destroyAllWindows();

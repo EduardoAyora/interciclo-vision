@@ -40,6 +40,7 @@ extern int thickness;
 
 Mat convertirEnImagenNegra(Mat imagen, bool esImagenConColores);
 Mat obtenerImagenRecortada();
+Mat obtenerImagenRecortadaRellena();
 void mouse_call(int event, int x, int y, int, void *);
 
 #endif
