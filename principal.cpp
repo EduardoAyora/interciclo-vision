@@ -89,25 +89,32 @@ int main(int argc, char *argv[])
     createTrackbar("Ecualizador", "Video", &valor, 3, eventoTrack, NULL);
     if (valor == 1)
     {
-
       videocargado >> video1;
-      resize(video1, video1, frame.size());
-      video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      if (!video1.empty())
+      {
+        resize(video1, video1, frame.size());
+        video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      }
     }
     if (valor == 2)
     {
-
       videocargado2 >> video1;
-      resize(video1, video1, frame.size());
-      video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      if (!video1.empty())
+      {
+        resize(video1, video1, frame.size());
+        video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      }
     }
     if (valor == 3)
     {
-
       videocargado3 >> video1;
-      resize(video1, video1, frame.size());
-      video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      if (!video1.empty())
+      {
+        resize(video1, video1, frame.size());
+        video1.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(frame.cols, frame.cols * 2)));
+      }
     }
+
     imshow("Video", ventana);
 
     if (!sonClicsPermitidos)
