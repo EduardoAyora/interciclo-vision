@@ -13,6 +13,7 @@
 #include <opencv2/video/video.hpp>
 #include <opencv2/videoio/videoio.hpp>
 #include <opencv2/tracking.hpp>
+#include <tuple>
 
 using namespace std;
 using namespace std::chrono;
@@ -39,8 +40,7 @@ extern bool sonClicsPermitidos;
 extern int thickness;
 
 Mat convertirEnImagenNegra(Mat imagen, bool esImagenConColores);
-Mat obtenerImagenRecortada();
-Mat obtenerImagenRecortadaRellena();
+std::tuple<Mat, Mat> obtenerImagenRecortada();
 void mouse_call(int event, int x, int y, int, void *);
 
 #endif

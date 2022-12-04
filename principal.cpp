@@ -113,9 +113,7 @@ int main(int argc, char *argv[])
     if (!sonClicsPermitidos)
     {
 
-      recorte = obtenerImagenRecortada();
-
-      lienzo = obtenerImagenRecortadaRellena();
+      tie(recorte, lienzo) = obtenerImagenRecortada();
       recorte.copyTo(ventana(Range(frame.rows, frame.rows * 2), Range(0, frame.cols)));
 
       // Calculo del area y tmb operacion de bitwise para combinar imagenes

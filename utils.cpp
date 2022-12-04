@@ -24,9 +24,10 @@ Mat convertirEnImagenNegra(Mat imagen, bool esImagenConColores)
   return imagenTmp;
 }
 
-Mat obtenerImagenRecortada()
+std::tuple<Mat, Mat> obtenerImagenRecortada()
 {
   Mat frameRecortado = convertirEnImagenNegra(frame, true);
+  Mat frameRecortadoRelleno = frameRecortado.clone();
 
   // Seguimiento con tracker
   Mat areaSeleccionadaTmp;
@@ -73,74 +74,18 @@ Mat obtenerImagenRecortada()
       {
         Vec3b color = frame.at<Vec3b>(i, j);
         frameRecortado.at<Vec3b>(i, j) = color;
-      }
-    }
-  }
-  Mat structuringElement = getStructuringElement(MORPH_CROSS, Size(3, 3));
-  morphologyEx(frameRecortado, frameRecortado, MORPH_ERODE, structuringElement, Point(-1,-1), 1);
-
-  return frameRecortado;
-}
-
-Mat obtenerImagenRecortadaRellena()
-{
-  Mat frameRecortado = convertirEnImagenNegra(frame, true);
-
-  // Seguimiento con tracker
-  Mat areaSeleccionadaTmp;
-  float traslacionDeRoiX = roi.x - pixelMasALaIzquierda;
-  float traslacionDeRoiY = roi.y - pixelMasArriba;
-  float warp_values[] = {1.0, 0.0, traslacionDeRoiX, 0.0, 1.0, traslacionDeRoiY};
-  Mat translation_matrix = Mat(2, 3, CV_32F, warp_values);
-  warpAffine(areaSeleccionada, areaSeleccionadaTmp, translation_matrix, areaSeleccionada.size());
-
-  for (int i = 0; i < areaSeleccionadaTmp.rows; i++)
-  {
-    // Verificar si existen dos lineas
-    bool pasoPrimeraLinea = false;
-    bool pasoSegundaLinea = false;
-    bool esDentroDeFigura = false;
-    for (int j = 0; j < areaSeleccionadaTmp.cols; j++)
-    {
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0)
-        pasoPrimeraLinea = true;
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
-        esDentroDeFigura = true;
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
-        pasoSegundaLinea = true;
-    }
-
-    // Recuperar solo pixeles dentro del área
-    pasoPrimeraLinea = false;
-    esDentroDeFigura = false;
-    if (!pasoSegundaLinea)
-      pasoSegundaLinea = true;
-    else
-      pasoSegundaLinea = false;
-    for (int j = 0; j < areaSeleccionadaTmp.cols; j++)
-    {
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0)
-        pasoPrimeraLinea = true;
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) == 0 && pasoPrimeraLinea)
-        esDentroDeFigura = true;
-      if ((int)areaSeleccionadaTmp.at<uchar>(i, j) > 0 && pasoPrimeraLinea && esDentroDeFigura)
-        pasoSegundaLinea = true;
-      if (pasoSegundaLinea)
-        esDentroDeFigura = false;
-      if (esDentroDeFigura)
-      {
         Vec3b colorBlanco;
         colorBlanco[0] = 255;
         colorBlanco[1] = 255;
         colorBlanco[2] = 255;
-        frameRecortado.at<Vec3b>(i, j) = colorBlanco;
+        frameRecortadoRelleno.at<Vec3b>(i, j) = colorBlanco;
       }
     }
   }
   Mat structuringElement = getStructuringElement(MORPH_CROSS, Size(3, 3));
   morphologyEx(frameRecortado, frameRecortado, MORPH_ERODE, structuringElement, Point(-1,-1), 1);
 
-  return frameRecortado;
+  return make_tuple(frameRecortado, frameRecortadoRelleno);
 }
 
 void mouse_call(int event, int x, int y, int, void *)
