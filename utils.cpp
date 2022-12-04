@@ -130,6 +130,6 @@ void mouse_call(int event, int x, int y, int, void *)
     sonClicsPermitidos = false;
   }
 
-  imshow("Original", frame);
-  imshow("Area seleccionada", areaSeleccionada);
+  //imshow("Original", frame);
+  //imshow("Area seleccionada", areaSeleccionada);
 }
